@@ -3,12 +3,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAdminActivityLog } from '@/lib/hooks/use-image-reviews'
 import { formatDistanceToNow } from 'date-fns'
-import { Activity, CheckCircle, Loader2, XCircle, Image } from 'lucide-react'
+import { Activity, CheckCircle, Loader2, Route, XCircle, Image } from 'lucide-react'
 
 const activityIconMap: Record<string, JSX.Element> = {
   image_approved: <CheckCircle className="h-4 w-4 text-green-600" />,
   image_rejected: <XCircle className="h-4 w-4 text-red-600" />,
   bulk_image_approved: <Image className="h-4 w-4 text-primary" />,
+  relocation_submission_created: <Route className="h-4 w-4 text-primary" />,
+  relocation_submission_approved: <CheckCircle className="h-4 w-4 text-green-600" />,
+  relocation_submission_rejected: <XCircle className="h-4 w-4 text-red-600" />,
+  marketplace_submission_created: <Route className="h-4 w-4 text-primary" />,
+  marketplace_submission_approved: <CheckCircle className="h-4 w-4 text-green-600" />,
+  marketplace_submission_rejected: <XCircle className="h-4 w-4 text-red-600" />,
 }
 
 function ActivityIcon({ type }: { type: string }) {
@@ -92,7 +98,7 @@ export function AdminActivityLog() {
   }
 
   return (
-    <Card className="transition-all duration-300 hover:shadow-lg">
+    <Card className="transition-all duration-300 hover:shadow-md">
       <CardHeader className="group">
         <CardTitle className="text-lg flex items-center gap-2">
           <Activity className="h-5 w-5 text-primary transition-transform group-hover:rotate-12" />

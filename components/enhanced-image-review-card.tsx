@@ -117,8 +117,8 @@ export function EnhancedImageReviewCard({
   return (
     <>
       <Card className={`
-        relative transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] hover:-translate-y-2
-        ${isSelected ? 'ring-2 ring-primary ring-offset-2 shadow-xl scale-[1.02]' : 'shadow-md'}
+        relative transition-all duration-300 hover:shadow-md hover:scale-[1.03] hover:-translate-y-2
+        ${isSelected ? 'ring-2 ring-primary ring-offset-2 shadow-md scale-[1.02]' : 'shadow-md'}
         ${isProcessing ? 'opacity-50 pointer-events-none' : ''}
         group overflow-hidden
       `}>
@@ -170,7 +170,7 @@ export function EnhancedImageReviewCard({
             <Button
               variant="secondary"
               size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg hover:scale-110"
+              className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-md hover:scale-110"
               onClick={() => setIsModalOpen(true)}
             >
               <Eye className="h-4 w-4 mr-2" />
@@ -238,7 +238,7 @@ export function EnhancedImageReviewCard({
                 size="sm"
                 onClick={handleQuickApprove}
                 disabled={isProcessing}
-                className="w-full sm:flex-1 bg-green-600 hover:bg-green-700 text-white shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-lg group/approve"
+                className="w-full sm:flex-1 bg-green-600 hover:bg-green-700 text-white shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md group/approve"
               >
                 <CheckCircle className="h-3 w-3 mr-1 transition-transform group-hover/approve:rotate-12 group-hover/approve:scale-110" />
                 Approve
@@ -248,7 +248,7 @@ export function EnhancedImageReviewCard({
                 variant="destructive"
                 onClick={handleQuickReject}
                 disabled={isProcessing}
-                className="w-full sm:flex-1 shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-lg group/reject"
+                className="w-full sm:flex-1 shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md group/reject"
               >
                 <XCircle className="h-3 w-3 mr-1 transition-transform group-hover/reject:rotate-12 group-hover/reject:scale-110" />
                 Reject

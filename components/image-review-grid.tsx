@@ -204,7 +204,7 @@ export function ImageReviewGrid({ filter }: ImageReviewGridProps) {
       {/* Load More Button (if needed) */}
       {filteredImages.length >= 20 && (
         <div className="text-center animate-in fade-in slide-in-from-bottom duration-500">
-          <Button variant="outline" size="lg" className="transition-all duration-200 hover:scale-105 hover:shadow-lg">
+          <Button variant="outline" size="lg" className="transition-all duration-200 hover:scale-105 hover:shadow-md">
             Load More Images
           </Button>
         </div>

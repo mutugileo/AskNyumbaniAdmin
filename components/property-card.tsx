@@ -44,7 +44,7 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
 
   return (
     <Card
-      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+      className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
       onClick={onClick}
     >
       {/* Image Carousel */}

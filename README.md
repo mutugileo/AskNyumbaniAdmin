@@ -51,7 +51,9 @@ Edit `.env.local` with your actual values:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://yqilhwaexdehmrcdblgz.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-actual-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 NEXT_PUBLIC_ADMIN_EMAIL=admin@asknyumbani.com
+NEXT_PUBLIC_VENDOR_PORTAL_URL=http://localhost:3001/vendor/submit
 ```
 
 ### 3. Run Development Server
@@ -86,7 +88,7 @@ npm run type-check
 ### Project Structure
 
 ```
-AskNyumbani(Admin)/
+Admin/
 ├── app/                    # Next.js App Router
 │   ├── login/             # Login page
 │   ├── layout.tsx         # Root layout
@@ -143,6 +145,7 @@ npm start
 1. **Create Tables**
    - `properties` - Property listings
    - `property_images` - Property images with approval status
+   - `relocation_catalog_submissions` - Relocation submissions pending admin moderation
 
 2. **Storage Buckets**
    - `property-images` - Public bucket for property images
@@ -154,6 +157,29 @@ npm start
 4. **Admin User**
    - Create admin user in Supabase Auth
    - Use email matching `NEXT_PUBLIC_ADMIN_EMAIL`
+
+### Relocation Moderation Migration
+
+Apply this SQL migration before using the Relocation moderation tab in production:
+
+```bash
+supabase db push
+```
+
+Migration file:
+- `supabase/migrations/20260209090000_relocation_catalog_moderation.sql`
+- `supabase/migrations/20260209100000_relocation_catalog_security.sql`
+- `supabase/migrations/20260209113000_marketplace_submission_moderation.sql`
+- `supabase/migrations/20260209130000_vendor_dashboard_media_and_resubmit.sql`
+- `supabase/migrations/20260209133000_vendor_auth_sessions_and_secure_rpcs.sql`
+
+What it adds:
+- `relocation_catalog_submissions` table (pending/approved/rejected)
+- `relocation_catalog_published` view (approved + published only for app read)
+- indexing + updated_at trigger
+- secure RPC access for admin queue/review + public submission entrypoint
+- `marketplace_item_submissions` table for `resale` and `decor` vendor items
+- secure RPC endpoints for vendor submit and admin approve/reject
 
 ### Image Domains
 
@@ -173,6 +199,17 @@ images: {
 - Approve or reject images with one click
 - See image metadata and property details
 - Real-time updates as images are submitted
+
+### Relocation Moderation
+
+- Admin review queue for relocation submissions (`pending`, `approved`, `rejected`)
+- Published-only records exposed to app via `relocation_catalog_published`
+
+### Vendor Integration
+
+- Vendor app is now a separate project under `../Vendor`.
+- Admin links to vendor portal via `NEXT_PUBLIC_VENDOR_PORTAL_URL`.
+- Submission/approval payload contract: `VENDOR_PAYLOAD_QA.md`.
 
 ### Property Management
 

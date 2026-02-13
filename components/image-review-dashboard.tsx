@@ -19,7 +19,7 @@ export function ImageReviewDashboard() {
       <div className="container mx-auto px-6 py-8 space-y-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border-l-4 border-l-yellow-500 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] animate-in fade-in slide-in-from-left duration-500 group">
+          <Card className="border-l-4 border-l-yellow-500 transition-all duration-300 hover:shadow-md hover:scale-[1.02] animate-in fade-in slide-in-from-left duration-500 group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-yellow-600">
                 Pending Review
@@ -36,7 +36,7 @@ export function ImageReviewDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-green-500 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] animate-in fade-in slide-in-from-bottom duration-500 delay-150 group">
+          <Card className="border-l-4 border-l-green-500 transition-all duration-300 hover:shadow-md hover:scale-[1.02] animate-in fade-in slide-in-from-bottom duration-500 delay-150 group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-green-600">
                 Approved
@@ -53,7 +53,7 @@ export function ImageReviewDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-primary transition-all duration-300 hover:shadow-xl hover:scale-[1.02] animate-in fade-in slide-in-from-right duration-500 delay-300 group">
+          <Card className="border-l-4 border-l-primary transition-all duration-300 hover:shadow-md hover:scale-[1.02] animate-in fade-in slide-in-from-right duration-500 delay-300 group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-primary">
                 Total Images

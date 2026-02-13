@@ -3,8 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/contexts/auth-context'
-import { ImageReviewDashboard } from '@/components/image-review-dashboard'
-import { AdminHeader } from '@/components/admin-header'
+import { OperationsDashboard } from '@/components/operations-dashboard'
 
 export default function HomePage() {
   const { user, isLoading } = useAuth()
@@ -35,12 +34,9 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 animate-in fade-in duration-500">
-      <div className="animate-in slide-in-from-top duration-500">
-        <AdminHeader />
-      </div>
-      <div className="animate-in fade-in slide-in-from-bottom duration-700 delay-150">
-        <ImageReviewDashboard />
+    <main className="app-shell min-h-screen animate-in fade-in duration-500">
+      <div className="relative z-10 mx-auto w-full px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate-in fade-in slide-in-from-bottom duration-700 delay-150">
+        <OperationsDashboard />
       </div>
     </main>
   )

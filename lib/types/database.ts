@@ -100,6 +100,7 @@ export interface Database {
           postal_code: string | null
           latitude: number | null
           longitude: number | null
+          land_details: Json | null
           status: 'draft' | 'available' | 'rented' | 'sold' | 'pending' | 'inactive'
           is_featured: boolean
           is_verified: boolean
@@ -131,6 +132,7 @@ export interface Database {
           postal_code?: string | null
           latitude?: number | null
           longitude?: number | null
+          land_details?: Json | null
           status?: 'draft' | 'available' | 'rented' | 'sold' | 'pending' | 'inactive'
           is_featured?: boolean
           is_verified?: boolean
@@ -162,6 +164,7 @@ export interface Database {
           postal_code?: string | null
           latitude?: number | null
           longitude?: number | null
+          land_details?: Json | null
           status?: 'draft' | 'available' | 'rented' | 'sold' | 'pending' | 'inactive'
           is_featured?: boolean
           is_verified?: boolean
@@ -219,6 +222,172 @@ export interface Database {
           admin_comment?: string | null
         }
       }
+      relocation_catalog_submissions: {
+        Row: {
+          id: string
+          submission_type:
+            | 'mover_profile'
+            | 'vehicle'
+            | 'service_type'
+            | 'inventory_template'
+            | 'addon'
+            | 'coverage_zone'
+            | 'pricing_rule'
+          title: string
+          submitted_by_name: string
+          submitted_by_contact: string
+          submitted_by_user_id: string | null
+          source: 'admin' | 'mobile_user' | 'partner_portal'
+          location: string
+          payload_summary: string
+          payload: Json
+          notes: string | null
+          status: 'pending' | 'approved' | 'rejected'
+          rejection_reason: string | null
+          reviewed_by_user_id: string | null
+          reviewed_by_name: string | null
+          reviewed_at: string | null
+          published: boolean
+          published_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          submission_type:
+            | 'mover_profile'
+            | 'vehicle'
+            | 'service_type'
+            | 'inventory_template'
+            | 'addon'
+            | 'coverage_zone'
+            | 'pricing_rule'
+          title: string
+          submitted_by_name: string
+          submitted_by_contact: string
+          submitted_by_user_id?: string | null
+          source?: 'admin' | 'mobile_user' | 'partner_portal'
+          location: string
+          payload_summary: string
+          payload?: Json
+          notes?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          rejection_reason?: string | null
+          reviewed_by_user_id?: string | null
+          reviewed_by_name?: string | null
+          reviewed_at?: string | null
+          published?: boolean
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          submission_type?:
+            | 'mover_profile'
+            | 'vehicle'
+            | 'service_type'
+            | 'inventory_template'
+            | 'addon'
+            | 'coverage_zone'
+            | 'pricing_rule'
+          title?: string
+          submitted_by_name?: string
+          submitted_by_contact?: string
+          submitted_by_user_id?: string | null
+          source?: 'admin' | 'mobile_user' | 'partner_portal'
+          location?: string
+          payload_summary?: string
+          payload?: Json
+          notes?: string | null
+          status?: 'pending' | 'approved' | 'rejected'
+          rejection_reason?: string | null
+          reviewed_by_user_id?: string | null
+          reviewed_by_name?: string | null
+          reviewed_at?: string | null
+          published?: boolean
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      marketplace_item_submissions: {
+        Row: {
+          id: string
+          domain: 'resale' | 'decor'
+          item_type: string
+          title: string
+          submitted_by_name: string
+          submitted_by_contact: string
+          submitted_by_user_id: string | null
+          source: 'vendor' | 'admin'
+          location: string
+          price: number | null
+          currency: string
+          description: string | null
+          image_urls: Json
+          payload: Json
+          status: 'pending' | 'approved' | 'rejected'
+          rejection_reason: string | null
+          reviewed_by_user_id: string | null
+          reviewed_by_name: string | null
+          reviewed_at: string | null
+          published: boolean
+          published_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          domain: 'resale' | 'decor'
+          item_type: string
+          title: string
+          submitted_by_name: string
+          submitted_by_contact: string
+          submitted_by_user_id?: string | null
+          source?: 'vendor' | 'admin'
+          location: string
+          price?: number | null
+          currency?: string
+          description?: string | null
+          image_urls?: Json
+          payload?: Json
+          status?: 'pending' | 'approved' | 'rejected'
+          rejection_reason?: string | null
+          reviewed_by_user_id?: string | null
+          reviewed_by_name?: string | null
+          reviewed_at?: string | null
+          published?: boolean
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          domain?: 'resale' | 'decor'
+          item_type?: string
+          title?: string
+          submitted_by_name?: string
+          submitted_by_contact?: string
+          submitted_by_user_id?: string | null
+          source?: 'vendor' | 'admin'
+          location?: string
+          price?: number | null
+          currency?: string
+          description?: string | null
+          image_urls?: Json
+          payload?: Json
+          status?: 'pending' | 'approved' | 'rejected'
+          rejection_reason?: string | null
+          reviewed_by_user_id?: string | null
+          reviewed_by_name?: string | null
+          reviewed_at?: string | null
+          published?: boolean
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }
@@ -227,3 +396,5 @@ export type PropertyImage = Database['public']['Tables']['property_images']['Row
 export type Property = Database['public']['Tables']['properties']['Row']
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type AdminActivityLog = Database['public']['Tables']['admin_activity_log']['Row']
+export type RelocationCatalogSubmission = Database['public']['Tables']['relocation_catalog_submissions']['Row']
+export type MarketplaceItemSubmission = Database['public']['Tables']['marketplace_item_submissions']['Row']

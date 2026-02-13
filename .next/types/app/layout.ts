@@ -1,4 +1,4 @@
-// File: /Users/leonard.mutugi/CodzureGroup/AskNyumbaniRealEstate/AskNyumbani(Admin)/app/layout.tsx
+// File: /Users/leonard.mutugi/CodzureGroup/AskNyumbaniRealEstate/Admin/app/layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

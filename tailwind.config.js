@@ -23,8 +23,8 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#E57373", // NyumbaniPrimary - Light Red
-          foreground: "#FFFFFF", // White text on red
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -50,14 +50,14 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // AskNyumbani specific colors - Warm Palette
+        // AskNyumbani Admin palette (amber/yellow)
         nyumbani: {
-          primary: "#E57373", // Light Red
-          primaryDark: "#D32F2F", // Dark Red
-          primaryLight: "#FFB74D", // Light Orange
-          cyan: "#00BCD4", // Vibrant Cyan accent
-          accent: "#FFD54F", // Light Yellow
-          background: "#FDFCFB", // Soft white
+          primary: "#FFB74D",
+          primaryDark: "#F57C00",
+          primaryLight: "#FFB74D",
+          cyan: "#FFCA28",
+          accent: "#FFD54F",
+          background: "#FFF8E1",
         },
       },
       borderRadius: {

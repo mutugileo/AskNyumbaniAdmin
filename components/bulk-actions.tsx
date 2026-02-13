@@ -23,7 +23,7 @@ export function BulkActions({ selectedCount, onClear }: BulkActionsProps) {
 
   if (showConfirm) {
     return (
-      <Card className="border-primary animate-in fade-in zoom-in duration-300 shadow-xl">
+      <Card className="border-primary animate-in fade-in zoom-in duration-300 shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center animate-in slide-in-from-left duration-300 delay-100">
             <AlertTriangle className="h-5 w-5 text-yellow-500 mr-2 animate-pulse" />
@@ -41,7 +41,7 @@ export function BulkActions({ selectedCount, onClear }: BulkActionsProps) {
                 setShowConfirm(false)
                 onClear()
               }}
-              className="bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 hover:shadow-lg group"
+              className="bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 hover:shadow-md group"
               disabled={bulkApprove.isPending}
             >
               <CheckCircle className="h-4 w-4 mr-2 transition-transform group-hover:rotate-12" />
@@ -68,7 +68,7 @@ export function BulkActions({ selectedCount, onClear }: BulkActionsProps) {
       <Button
         size="sm"
         onClick={handleBulkApprove}
-        className="bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 hover:shadow-lg group"
+        className="bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 hover:shadow-md group"
       >
         <CheckCircle className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" />
         Approve All

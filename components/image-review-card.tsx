@@ -115,8 +115,8 @@ export function ImageReviewCard({
   return (
     <>
       <Card className={`
-        relative transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:-translate-y-1
-        ${isSelected ? 'ring-2 ring-primary ring-offset-2 shadow-xl' : ''}
+        relative transition-all duration-300 hover:shadow-md hover:scale-[1.02] hover:-translate-y-1
+        ${isSelected ? 'ring-2 ring-primary ring-offset-2 shadow-md' : ''}
         ${isProcessing ? 'opacity-50 pointer-events-none' : ''}
         group
       `}>
@@ -212,7 +212,7 @@ export function ImageReviewCard({
                 size="sm"
                 onClick={handleQuickApprove}
                 disabled={isProcessing}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:scale-105 hover:shadow-lg group/approve"
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:scale-105 hover:shadow-md group/approve"
               >
                 <CheckCircle className="h-3 w-3 mr-1 transition-transform group-hover/approve:rotate-12" />
                 Approve
@@ -222,7 +222,7 @@ export function ImageReviewCard({
                 variant="destructive"
                 onClick={handleQuickReject}
                 disabled={isProcessing}
-                className="flex-1 transition-all duration-200 hover:scale-105 hover:shadow-lg group/reject"
+                className="flex-1 transition-all duration-200 hover:scale-105 hover:shadow-md group/reject"
               >
                 <XCircle className="h-3 w-3 mr-1 transition-transform group-hover/reject:rotate-12" />
                 Reject

@@ -38,7 +38,7 @@ export function ImageReviewFilters({ currentFilter, onFilterChange }: ImageRevie
   ]
 
   return (
-    <Card className="transition-all duration-300 hover:shadow-lg">
+    <Card className="transition-all duration-300 hover:shadow-md">
       <CardContent className="p-6">
         <div className="flex flex-wrap gap-3">
           {filters.map((filter) => {

@@ -4,50 +4,48 @@
 
 @layer base {
   :root {
-    /* AskNyumbani Light Mode Colors - Warm Palette */
-    --background: 0 0% 99%; /* #FDFCFB - Soft white background */
-    --foreground: 15 20% 10%; /* #1A1412 - Dark navy text */
-    --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 15 20% 10%; /* Dark text on cards */
+    --background: 42 72% 97%;
+    --foreground: 24 28% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 24 28% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 15 20% 10%;
-    --primary: 1 65% 67%; /* #E57373 - Light Red (NyumbaniPrimary) */
-    --primary-foreground: 0 0% 100%; /* White text on red */
-    --secondary: 27 87% 67%; /* #FFB74D - Light Orange (NyumbaniPrimaryLight) */
-    --secondary-foreground: 15 20% 10%;
-    --muted: 15 15% 95%; /* Light warm gray */
-    --muted-foreground: 15 10% 46%; /* Medium warm gray */
-    --accent: 187 100% 42%; /* #00BCD4 - Cyan accent */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 65% 51%; /* #D32F2F - Dark Red */
+    --popover-foreground: 24 28% 14%;
+    --primary: 35 100% 65%;
+    --primary-foreground: 24 45% 18%;
+    --secondary: 38 100% 92%;
+    --secondary-foreground: 28 32% 22%;
+    --muted: 40 44% 92%;
+    --muted-foreground: 27 14% 40%;
+    --accent: 46 100% 65%;
+    --accent-foreground: 32 42% 18%;
+    --destructive: 1 72% 54%;
     --destructive-foreground: 0 0% 100%;
-    --border: 15 15% 88%; /* Light warm border */
-    --input: 15 15% 88%;
-    --ring: 1 65% 67%; /* Light Red ring */
-    --radius: 0.5rem;
+    --border: 34 48% 82%;
+    --input: 34 48% 82%;
+    --ring: 35 100% 65%;
+    --radius: 0.9rem;
   }
 
   .dark {
-    /* AskNyumbani Dark Mode Colors */
-    --background: 15 20% 10%; /* #1A1412 - Very dark brown background */
-    --foreground: 210 40% 98%; /* Soft white text */
-    --card: 15 15% 19%; /* #312A27 - Dark surface cards */
-    --card-foreground: 210 40% 98%; /* Soft white text on cards */
-    --popover: 15 15% 19%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 187 100% 42%; /* #00BCD4 - Same cyan in dark mode */
-    --primary-foreground: 0 0% 100%; /* White text on cyan */
-    --secondary: 15 15% 29%; /* #493F3B - Darker surface variant */
-    --secondary-foreground: 210 40% 98%;
-    --muted: 15 15% 29%;
-    --muted-foreground: 215 20.2% 65.1%; /* Light gray */
-    --accent: 15 15% 29%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 15 10% 39%; /* #655954 - Darker border */
-    --input: 15 10% 39%;
-    --ring: 187 100% 42%; /* Cyan ring */
+    --background: 26 29% 10%;
+    --foreground: 43 44% 95%;
+    --card: 24 26% 14%;
+    --card-foreground: 43 44% 95%;
+    --popover: 24 26% 14%;
+    --popover-foreground: 43 44% 95%;
+    --primary: 35 96% 58%;
+    --primary-foreground: 27 38% 12%;
+    --secondary: 24 18% 20%;
+    --secondary-foreground: 43 44% 95%;
+    --muted: 24 18% 20%;
+    --muted-foreground: 36 18% 73%;
+    --accent: 46 94% 60%;
+    --accent-foreground: 27 38% 12%;
+    --destructive: 2 67% 45%;
+    --destructive-foreground: 43 44% 95%;
+    --border: 24 14% 28%;
+    --input: 24 14% 28%;
+    --ring: 35 96% 58%;
   }
 }
 
@@ -55,7 +53,45 @@
   * {
     @apply border-border;
   }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--font-body), "Segoe UI", sans-serif;
+    @apply min-h-screen bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(1180px 500px at 100% -8%, hsl(var(--primary) / 0.2), transparent 60%),
+      radial-gradient(920px 440px at -15% 4%, hsl(var(--accent) / 0.2), transparent 60%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.22);
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply relative overflow-hidden;
+  }
+
+  .app-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.5), transparent 82%);
+    z-index: 0;
   }
 }
