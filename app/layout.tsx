@@ -1,18 +1,20 @@
 import type { Metadata } from 'next'
-import { Manrope, Playfair_Display } from 'next/font/google'
+import { DM_Sans, Fraunces } from 'next/font/google'
 import './globals.css'
 import { QueryProvider } from '@/lib/providers/query-provider'
 import { AuthProvider } from '@/lib/contexts/auth-context'
 import { Toaster } from '@/components/ui/sonner'
 
-const manrope = Manrope({
+const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-body',
+  weight: ['400', '500', '600', '700'],
 })
 
-const playfair = Playfair_Display({
+const fraunces = Fraunces({
   subsets: ['latin'],
   variable: '--font-display',
+  weight: ['500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -26,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={`${manrope.variable} ${playfair.variable}`}>
+    <html lang="en" className="dark">
+      <body className={`${dmSans.variable} ${fraunces.variable}`}>
         <QueryProvider>
           <AuthProvider>
             {children}

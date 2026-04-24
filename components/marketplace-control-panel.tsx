@@ -6,7 +6,6 @@ import { formatDistanceToNow } from 'date-fns'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -26,6 +25,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
+  ExternalLink,
   FileCheck,
   FileWarning,
   Layers3,
@@ -142,13 +142,11 @@ export function MarketplaceControlPanel({
       toast.error('Fill all required fields before submitting.')
       return
     }
-
     const parsedPrice = form.price.trim() ? Number(form.price) : null
     if (form.price.trim() && Number.isNaN(parsedPrice)) {
       toast.error('Price must be a valid number')
       return
     }
-
     const payload: CreateMarketplaceSubmissionInput = {
       domain,
       itemType: form.itemType,
@@ -163,7 +161,6 @@ export function MarketplaceControlPanel({
       imageUrls: [],
       payload: buildPayload ? buildPayload(form, extraValues) : {},
     }
-
     try {
       await createSubmissionMutation.mutateAsync(payload)
       setForm({ ...defaultFormState, itemType: itemTypeOptions[0] ?? '', currency: 'KES' })
@@ -195,15 +192,10 @@ export function MarketplaceControlPanel({
       toast.error('Provide a rejection reason first.')
       return
     }
-
     setProcessingId(submissionId)
     try {
       await rejectSubmissionMutation.mutateAsync({ submissionId, rejectionReason: reason })
-      setRejectReasonById(prev => {
-        const next = { ...prev }
-        delete next[submissionId]
-        return next
-      })
+      setRejectReasonById(prev => { const next = { ...prev }; delete next[submissionId]; return next })
       toast.success('Item rejected.')
     } catch (error) {
       console.error('Reject marketplace submission failed:', error)
@@ -216,210 +208,172 @@ export function MarketplaceControlPanel({
   return (
     <div className="space-y-6">
       {schemaMissing && (
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
+        <Alert className="border-warning/30 bg-warning/5">
+          <AlertTriangle className="h-4 w-4 text-warning" />
           <AlertTitle>{title} schema missing</AlertTitle>
-          <AlertDescription>
-            Apply migration <code className="rounded bg-muted px-1.5 py-0.5 text-xs">supabase/migrations/20260209113000_marketplace_submission_moderation.sql</code>
-            to enable vendor submissions and admin approvals.
+          <AlertDescription className="text-xs">
+            Apply migration to enable vendor submissions and admin approvals.
           </AlertDescription>
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <StatCard icon={Clock} title="Pending" value={stats.pending} hint="Awaiting review" />
-        <StatCard icon={FileCheck} title="Published" value={stats.published} hint="Visible in app" />
-        <StatCard icon={XCircle} title="Rejected" value={stats.rejected} hint="Needs correction" />
-        <StatCard icon={Layers3} title="Total" value={stats.total} hint="All submissions" />
+      {/* Stats */}
+      <div className="stagger-children grid grid-cols-1 gap-3 md:grid-cols-4">
+        <MiniStat icon={Clock} label="Pending" value={stats.pending} color="text-warning" />
+        <MiniStat icon={FileCheck} label="Published" value={stats.published} color="text-success" />
+        <MiniStat icon={XCircle} label="Rejected" value={stats.rejected} color="text-destructive" />
+        <MiniStat icon={Layers3} label="Total" value={stats.total} color="text-foreground" />
       </div>
 
-      <section className="space-y-3 rounded-lg border border-border/70 bg-background/70 p-4">
+      {/* Header + tabs */}
+      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <h3 className="text-base font-semibold tracking-tight">{title}</h3>
-            <p className="text-sm text-muted-foreground">{description}</p>
+            <h3 className="text-sm font-semibold">{title}</h3>
+            <p className="text-xs text-muted-foreground">{description}</p>
           </div>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
             <Link href={vendorPortalUrl} target="_blank" rel="noreferrer">
-              Open Vendor Portal
+              <ExternalLink className="h-3 w-3" />
+              Vendor Portal
             </Link>
           </Button>
         </div>
         <div className="flex flex-wrap gap-2">
-          <TabButton active={activeTab === 'queue'} onClick={() => setActiveTab('queue')} icon={FileWarning} label={`Queue (${stats.pending})`} />
-          <TabButton active={activeTab === 'published'} onClick={() => setActiveTab('published')} icon={FileCheck} label={`Published (${stats.published})`} />
-          <TabButton active={activeTab === 'submit'} onClick={() => setActiveTab('submit')} icon={PlusCircle} label="Add Item" />
+          <TabBtn active={activeTab === 'queue'} onClick={() => setActiveTab('queue')} icon={FileWarning} label={`Queue (${stats.pending})`} />
+          <TabBtn active={activeTab === 'published'} onClick={() => setActiveTab('published')} icon={FileCheck} label={`Published (${stats.published})`} />
+          <TabBtn active={activeTab === 'submit'} onClick={() => setActiveTab('submit')} icon={PlusCircle} label="Add Item" />
         </div>
-      </section>
+      </div>
 
+      {/* Submit */}
       {activeTab === 'submit' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Create Submission (Admin)</CardTitle>
-            <CardDescription>Add an item on behalf of a vendor/user. It still goes through moderation.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor={`${domain}-type`}>Item Type</Label>
-                <select
-                  id={`${domain}-type`}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  value={form.itemType}
-                  onChange={(event) => setForm(prev => ({ ...prev, itemType: event.target.value }))}
-                >
-                  {itemTypeOptions.map(option => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`${domain}-title`}>Title</Label>
-                <Input id={`${domain}-title`} value={form.title} onChange={event => setForm(prev => ({ ...prev, title: event.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`${domain}-location`}>Location</Label>
-                <Input id={`${domain}-location`} value={form.location} onChange={event => setForm(prev => ({ ...prev, location: event.target.value }))} />
-              </div>
+        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold">Create Submission (Admin)</h3>
+            <p className="text-xs text-muted-foreground">Add an item on behalf of a vendor/user. It still goes through moderation.</p>
+          </div>
+          <div className="accent-line" />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label htmlFor={`${domain}-type`} className="text-xs">Item Type</Label>
+              <select id={`${domain}-type`}
+                className="flex h-9 w-full rounded-lg border border-border bg-muted px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                value={form.itemType} onChange={(e) => setForm(prev => ({ ...prev, itemType: e.target.value }))}>
+                {itemTypeOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+              </select>
             </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor={`${domain}-name`}>Submitted By</Label>
-                <Input id={`${domain}-name`} value={form.submittedBy} onChange={event => setForm(prev => ({ ...prev, submittedBy: event.target.value }))} />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor={`${domain}-contact`}>Contact</Label>
-                <Input id={`${domain}-contact`} value={form.submitterContact} onChange={event => setForm(prev => ({ ...prev, submitterContact: event.target.value }))} />
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${domain}-title`} className="text-xs">Title</Label>
+              <Input id={`${domain}-title`} value={form.title} onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))} className="h-9 text-sm" />
             </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor={`${domain}-price`}>Price (optional)</Label>
-                <Input id={`${domain}-price`} value={form.price} onChange={event => setForm(prev => ({ ...prev, price: event.target.value }))} placeholder="e.g. 25000" />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor={`${domain}-currency`}>Currency</Label>
-                <Input id={`${domain}-currency`} value={form.currency} onChange={event => setForm(prev => ({ ...prev, currency: event.target.value }))} />
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${domain}-location`} className="text-xs">Location</Label>
+              <Input id={`${domain}-location`} value={form.location} onChange={e => setForm(prev => ({ ...prev, location: e.target.value }))} className="h-9 text-sm" />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor={`${domain}-description`}>Description</Label>
-              <Textarea
-                id={`${domain}-description`}
-                rows={4}
-                value={form.description}
-                onChange={event => setForm(prev => ({ ...prev, description: event.target.value }))}
-              />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="space-y-1.5 md:col-span-2">
+              <Label htmlFor={`${domain}-name`} className="text-xs">Submitted By</Label>
+              <Input id={`${domain}-name`} value={form.submittedBy} onChange={e => setForm(prev => ({ ...prev, submittedBy: e.target.value }))} className="h-9 text-sm" />
             </div>
+            <div className="space-y-1.5 md:col-span-2">
+              <Label htmlFor={`${domain}-contact`} className="text-xs">Contact</Label>
+              <Input id={`${domain}-contact`} value={form.submitterContact} onChange={e => setForm(prev => ({ ...prev, submitterContact: e.target.value }))} className="h-9 text-sm" />
+            </div>
+          </div>
 
-            {extraFields && extraFields.length > 0 && (
-              <div className="rounded-lg border p-4 space-y-4">
-                <div className="space-y-1">
-                  <h3 className="font-semibold">{extraSectionTitle ?? 'Additional details'}</h3>
-                  {extraSectionDescription && (
-                    <p className="text-sm text-muted-foreground">{extraSectionDescription}</p>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  {extraFields.map(field => {
-                    const fieldValue = extraValues[field.id] ?? ''
-                    const fieldId = `${domain}-${field.id}`
-                    if (field.type === 'select') {
-                      return (
-                        <div key={field.id} className="space-y-2">
-                          <Label htmlFor={fieldId}>{field.label}</Label>
-                          <select
-                            id={fieldId}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            value={fieldValue}
-                            onChange={event =>
-                              setExtraValues(prev => ({ ...prev, [field.id]: event.target.value }))
-                            }
-                          >
-                            {(field.options ?? []).map(option => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                          {field.helpText && (
-                            <p className="text-xs text-muted-foreground">{field.helpText}</p>
-                          )}
-                        </div>
-                      )
-                    }
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="space-y-1.5 md:col-span-2">
+              <Label htmlFor={`${domain}-price`} className="text-xs">Price (optional)</Label>
+              <Input id={`${domain}-price`} value={form.price} onChange={e => setForm(prev => ({ ...prev, price: e.target.value }))} placeholder="e.g. 25000" className="h-9 text-sm" />
+            </div>
+            <div className="space-y-1.5 md:col-span-2">
+              <Label htmlFor={`${domain}-currency`} className="text-xs">Currency</Label>
+              <Input id={`${domain}-currency`} value={form.currency} onChange={e => setForm(prev => ({ ...prev, currency: e.target.value }))} className="h-9 text-sm" />
+            </div>
+          </div>
 
+          <div className="space-y-1.5">
+            <Label htmlFor={`${domain}-description`} className="text-xs">Description</Label>
+            <Textarea id={`${domain}-description`} rows={3} value={form.description}
+              onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))} className="text-sm" />
+          </div>
+
+          {extraFields && extraFields.length > 0 && (
+            <div className="rounded-lg border border-border p-4 space-y-3">
+              <div>
+                <h4 className="text-xs font-semibold">{extraSectionTitle ?? 'Additional details'}</h4>
+                {extraSectionDescription && <p className="text-[11px] text-muted-foreground">{extraSectionDescription}</p>}
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                {extraFields.map(field => {
+                  const fieldValue = extraValues[field.id] ?? ''
+                  const fieldId = `${domain}-${field.id}`
+                  if (field.type === 'select') {
                     return (
-                      <div key={field.id} className="space-y-2">
-                        <Label htmlFor={fieldId}>{field.label}</Label>
-                        <Input
-                          id={fieldId}
-                          type={field.type ?? 'text'}
-                          placeholder={field.placeholder}
-                          value={fieldValue}
-                          onChange={event =>
-                            setExtraValues(prev => ({ ...prev, [field.id]: event.target.value }))
-                          }
-                        />
-                        {field.helpText && (
-                          <p className="text-xs text-muted-foreground">{field.helpText}</p>
-                        )}
+                      <div key={field.id} className="space-y-1.5">
+                        <Label htmlFor={fieldId} className="text-xs">{field.label}</Label>
+                        <select id={fieldId}
+                          className="flex h-9 w-full rounded-lg border border-border bg-muted px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          value={fieldValue} onChange={e => setExtraValues(prev => ({ ...prev, [field.id]: e.target.value }))}>
+                          {(field.options ?? []).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                        {field.helpText && <p className="text-[10px] text-muted-foreground">{field.helpText}</p>}
                       </div>
                     )
-                  })}
-                </div>
+                  }
+                  return (
+                    <div key={field.id} className="space-y-1.5">
+                      <Label htmlFor={fieldId} className="text-xs">{field.label}</Label>
+                      <Input id={fieldId} type={field.type ?? 'text'} placeholder={field.placeholder} value={fieldValue}
+                        onChange={e => setExtraValues(prev => ({ ...prev, [field.id]: e.target.value }))} className="h-9 text-sm" />
+                      {field.helpText && <p className="text-[10px] text-muted-foreground">{field.helpText}</p>}
+                    </div>
+                  )
+                })}
               </div>
-            )}
-
-            <div className="flex justify-end">
-              <Button onClick={handleSubmit} disabled={!canSubmit || createSubmissionMutation.isPending || schemaMissing} className="gap-2">
-                {createSubmissionMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                Add to Queue
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {activeTab === 'queue' && (
-        <div className="space-y-4">
-          {pending.length === 0 && (
-            <div className="rounded-lg border border-dashed py-12 text-center text-sm text-muted-foreground">
-              No pending submissions right now.
             </div>
           )}
 
+          <div className="flex justify-end">
+            <Button onClick={handleSubmit} disabled={!canSubmit || createSubmissionMutation.isPending || schemaMissing} className="gap-1.5">
+              {createSubmissionMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Add to Queue
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Queue */}
+      {activeTab === 'queue' && (
+        <div className="space-y-3">
+          {pending.length === 0 && (
+            <div className="rounded-xl border border-dashed border-border p-12 text-center text-xs text-muted-foreground">
+              No pending submissions right now.
+            </div>
+          )}
           {pending.map(item => {
             const isProcessing = processingId === item.id
             return (
-              <ModerationCard
-                key={item.id}
-                item={item}
-                mode="queue"
-                isProcessing={isProcessing}
+              <ModerationCard key={item.id} item={item} mode="queue" isProcessing={isProcessing}
                 rejectReason={rejectReasonById[item.id] ?? ''}
-                onRejectReasonChange={value => setRejectReasonById(prev => ({ ...prev, [item.id]: value }))}
-                onApprove={() => handleApprove(item.id)}
-                onReject={() => handleReject(item.id)}
-              />
+                onRejectReasonChange={v => setRejectReasonById(prev => ({ ...prev, [item.id]: v }))}
+                onApprove={() => handleApprove(item.id)} onReject={() => handleReject(item.id)} />
             )
           })}
         </div>
       )}
 
+      {/* Published */}
       {activeTab === 'published' && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {published.length === 0 && (
-            <div className="lg:col-span-2 rounded-lg border border-dashed py-12 text-center text-sm text-muted-foreground">
+            <div className="lg:col-span-2 rounded-xl border border-dashed border-border p-12 text-center text-xs text-muted-foreground">
               No published items yet.
             </div>
           )}
-
           {published.map(item => (
             <ModerationCard key={item.id} item={item} mode="published" isProcessing={false} rejectReason="" onRejectReasonChange={() => {}} onApprove={() => {}} onReject={() => {}} />
           ))}
@@ -429,32 +383,21 @@ export function MarketplaceControlPanel({
   )
 }
 
-function ModerationCard({
-  item,
-  mode,
-  isProcessing,
-  rejectReason,
-  onRejectReasonChange,
-  onApprove,
-  onReject,
-}: {
-  item: MarketplaceSubmission
-  mode: 'queue' | 'published'
-  isProcessing: boolean
-  rejectReason: string
-  onRejectReasonChange: (value: string) => void
-  onApprove: () => void
-  onReject: () => void
+function ModerationCard({ item, mode, isProcessing, rejectReason, onRejectReasonChange, onApprove, onReject }: {
+  item: MarketplaceSubmission; mode: 'queue' | 'published'; isProcessing: boolean
+  rejectReason: string; onRejectReasonChange: (v: string) => void; onApprove: () => void; onReject: () => void
 }) {
   return (
-    <article className={cn('space-y-3 rounded-2xl border bg-background/80 p-4 sm:p-5', mode === 'published' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-yellow-500')}>
+    <article className={cn('mod-card space-y-3', mode === 'published' ? 'mod-card--published' : 'mod-card--pending')}>
       <div className="flex items-center justify-between gap-2">
-        <h4 className="text-base font-semibold">{item.title}</h4>
-        <Badge variant={mode === 'published' ? 'default' : 'secondary'}>{mode === 'published' ? 'Published' : 'Pending'}</Badge>
+        <h4 className="text-sm font-semibold">{item.title}</h4>
+        <Badge variant="outline" className={cn('text-[10px]',
+          mode === 'published' ? 'border-success/30 bg-success/10 text-success' : 'border-warning/30 bg-warning/10 text-warning'
+        )}>
+          {mode === 'published' ? 'Published' : 'Pending'}
+        </Badge>
       </div>
-      <p className="text-sm text-muted-foreground">
-        {item.itemType} · {item.location} · {item.submittedBy}
-      </p>
+      <p className="text-xs text-muted-foreground">{item.itemType} \u00b7 {item.location} \u00b7 {item.submittedBy}</p>
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
         <InfoRow label="Contact" value={item.submitterContact} />
@@ -462,27 +405,22 @@ function ModerationCard({
         <InfoRow label="Submitted" value={formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })} />
       </div>
 
-      {item.description && <p className="text-sm text-muted-foreground">{item.description}</p>}
-
-      <SubmissionMediaPreview
-        urls={item.imageUrls}
-        emptyLabel="No media attached to this submission."
-      />
+      {item.description && <p className="text-xs text-muted-foreground">{item.description}</p>}
+      <SubmissionMediaPreview urls={item.imageUrls} emptyLabel="No media attached." />
 
       {mode === 'queue' && (
         <>
-          <div className="space-y-2">
-            <Label htmlFor={`reject-${item.id}`}>Rejection reason</Label>
-            <Textarea id={`reject-${item.id}`} rows={2} value={rejectReason} onChange={event => onRejectReasonChange(event.target.value)} />
+          <div className="space-y-1.5">
+            <Label htmlFor={`reject-${item.id}`} className="text-xs">Rejection reason</Label>
+            <Textarea id={`reject-${item.id}`} rows={2} value={rejectReason} onChange={e => onRejectReasonChange(e.target.value)} className="text-sm" />
           </div>
-
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onReject} disabled={isProcessing} className="gap-2">
-              {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+            <Button variant="outline" size="sm" onClick={onReject} disabled={isProcessing} className="gap-1.5">
+              {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
               Reject
             </Button>
-            <Button onClick={onApprove} disabled={isProcessing} className="gap-2 bg-green-600 text-white hover:bg-green-700">
-              {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+            <Button size="sm" onClick={onApprove} disabled={isProcessing} className="gap-1.5 bg-success text-success-foreground hover:bg-success/90">
+              {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />}
               Approve
             </Button>
           </div>
@@ -494,53 +432,30 @@ function ModerationCard({
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border p-2">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="font-medium">{value}</p>
+    <div className="rounded-lg border border-border bg-muted/30 p-2">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium">{value}</p>
     </div>
   )
 }
 
-function StatCard({
-  icon: Icon,
-  title,
-  value,
-  hint,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  title: string
-  value: number
-  hint: string
-}) {
+function MiniStat({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number; color: string }) {
   return (
-    <Card className="border-l-4 border-l-primary">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm text-muted-foreground">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-primary">{value}</div>
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
+    <div className="stat-card rounded-xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <Icon className={cn('h-4 w-4', color)} />
+      </div>
+      <p className={cn('mt-1 text-2xl font-bold tracking-tight', color)}>{value}</p>
+    </div>
   )
 }
 
-function TabButton({
-  active,
-  onClick,
-  icon: Icon,
-  label,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-}) {
+function TabBtn({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: React.ComponentType<{ className?: string }>; label: string }) {
   return (
-    <Button type="button" variant={active ? 'default' : 'outline'} onClick={onClick} className={cn('gap-2', !active && 'bg-background')}>
-      <Icon className="h-4 w-4" />
+    <button type="button" onClick={onClick} className={cn('tab-btn', active ? 'tab-btn--active' : 'tab-btn--inactive')}>
+      <Icon className="h-3.5 w-3.5" />
       {label}
-    </Button>
+    </button>
   )
 }

@@ -50,14 +50,18 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // AskNyumbani Admin palette (amber/yellow)
-        nyumbani: {
-          primary: "#FFB74D",
-          primaryDark: "#F57C00",
-          primaryLight: "#FFB74D",
-          cyan: "#FFCA28",
-          accent: "#FFD54F",
-          background: "#FFF8E1",
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
         },
       },
       borderRadius: {

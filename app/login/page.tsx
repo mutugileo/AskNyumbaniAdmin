@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/contexts/auth-context'
 import { PinForm } from '@/components/auth/pin-form'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Shield } from 'lucide-react'
+import { Shield, Building2, CheckCircle2, Eye, Users } from 'lucide-react'
 
 export default function LoginPage() {
   const { user, isLoading } = useAuth()
@@ -21,9 +20,9 @@ export default function LoginPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="text-muted-foreground">Loading...</span>
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-10 w-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+          <span className="text-sm text-muted-foreground font-medium">Authenticating...</span>
         </div>
       </div>
     )
@@ -34,52 +33,77 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="app-shell min-h-screen">
-      <section className="relative z-10 container mx-auto px-6 py-14">
-        <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1.2fr_1fr]">
-          <div className="rounded-3xl border border-border/70 bg-card/75 p-10 shadow-[0_12px_28px_-18px_hsl(var(--foreground)/0.35)] backdrop-blur-xl">
-            <div className="mb-8 inline-flex rounded-2xl border border-primary/25 bg-primary/10 p-3">
-              <Shield className="h-7 w-7 text-primary" />
-            </div>
-            <h1 className="text-4xl font-semibold leading-tight text-foreground">AskNyumbani Operations Console</h1>
-            <p className="mt-4 max-w-xl text-base text-muted-foreground">
-              Moderate vendor submissions, approve marketplace listings, and control what appears in the consumer app.
-            </p>
-            <div className="mt-8 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
-              <div className="rounded-xl border border-border/70 bg-background/70 p-4">Real-time moderation queue</div>
-              <div className="rounded-xl border border-border/70 bg-background/70 p-4">Approval-led publishing flow</div>
-              <div className="rounded-xl border border-border/70 bg-background/70 p-4">Vendor integration oversight</div>
-              <div className="rounded-xl border border-border/70 bg-background/70 p-4">Audit-ready activity history</div>
-            </div>
-          </div>
+    <main className="min-h-screen bg-background grain-overlay">
+      {/* Ambient background glow */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background: 'radial-gradient(ellipse 60% 50% at 20% 20%, hsl(36 100% 50% / 0.06), transparent 70%), radial-gradient(ellipse 40% 40% at 80% 80%, hsl(36 100% 50% / 0.04), transparent 60%)',
+        }}
+      />
 
-          <Card className="border-border/70 bg-card/90 shadow-[0_10px_24px_-16px_hsl(var(--foreground)/0.35)]">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-3xl">Admin Login</CardTitle>
-              <CardDescription>Enter your 4-digit PIN to access moderation tools.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <PinForm onSuccess={() => router.push('/')} />
-              <div className="text-xs text-muted-foreground">
-                By continuing, you accept internal security and moderation policy terms.
-              </div>
-            </CardContent>
-          </Card>
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12">
+        {/* Top brand mark */}
+        <div className="mb-10 flex items-center gap-3 page-enter">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
+            <Shield className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-lg font-semibold tracking-tight">AskNyumbani</p>
+            <p className="text-xs text-muted-foreground tracking-wide uppercase">Operations Console</p>
+          </div>
         </div>
 
-        <footer className="mt-10 text-center text-sm text-muted-foreground space-y-2">
-          <div className="flex justify-center items-center gap-3 flex-wrap">
-            <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors hover:underline">
+        {/* Login card */}
+        <div className="w-full max-w-[420px] page-enter" style={{ animationDelay: '0.1s' }}>
+          <div className="rounded-2xl border border-border bg-card p-8 shadow-xl shadow-black/5 corner-accent">
+            <div className="mb-6">
+              <h1 className="text-2xl font-semibold tracking-tight">Admin Login</h1>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Enter your 4-digit PIN to access moderation tools.
+              </p>
+            </div>
+
+            <PinForm onSuccess={() => router.push('/')} />
+
+            <div className="mt-6 text-xs text-muted-foreground/70 leading-relaxed">
+              By continuing, you accept internal security and moderation policy terms.
+            </div>
+          </div>
+        </div>
+
+        {/* Feature pills */}
+        <div className="mt-8 flex flex-wrap justify-center gap-2 page-enter" style={{ animationDelay: '0.2s' }}>
+          {[
+            { icon: Eye, label: 'Real-time moderation' },
+            { icon: CheckCircle2, label: 'Approval workflows' },
+            { icon: Building2, label: 'Property oversight' },
+            { icon: Users, label: 'Vendor management' },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/50 px-3 py-1.5 text-xs text-muted-foreground"
+            >
+              <item.icon className="h-3 w-3 text-primary/70" />
+              {item.label}
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-10 text-center text-xs text-muted-foreground/60 page-enter" style={{ animationDelay: '0.3s' }}>
+          <div className="flex items-center justify-center gap-3">
+            <Link href="/privacy" className="hover:text-primary transition-colors">
               Privacy Policy
             </Link>
-            <span className="text-muted-foreground/50">•</span>
-            <Link href="/terms" className="text-primary hover:text-primary/80 transition-colors hover:underline">
+            <span className="text-border">|</span>
+            <Link href="/terms" className="hover:text-primary transition-colors">
               Terms of Service
             </Link>
           </div>
-          <p>© 2026 Codzure Solutions Limited. All rights reserved.</p>
+          <p className="mt-2">Codzure Solutions Limited</p>
         </footer>
-      </section>
+      </div>
     </main>
   )
 }

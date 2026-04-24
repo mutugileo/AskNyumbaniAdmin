@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useBulkApproveImages } from '@/lib/hooks/use-image-reviews'
 import { CheckCircle, X, AlertTriangle } from 'lucide-react'
 
@@ -16,70 +15,60 @@ export function BulkActions({ selectedCount, onClear }: BulkActionsProps) {
   const bulkApprove = useBulkApproveImages()
 
   const handleBulkApprove = async () => {
-    // This would need to be passed down from the parent component
-    // For now, we'll just show the confirmation
     setShowConfirm(true)
   }
 
   if (showConfirm) {
     return (
-      <Card className="border-primary animate-in fade-in zoom-in duration-300 shadow-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center animate-in slide-in-from-left duration-300 delay-100">
-            <AlertTriangle className="h-5 w-5 text-yellow-500 mr-2 animate-pulse" />
-            Confirm Bulk Approval
-          </CardTitle>
-          <CardDescription className="animate-in fade-in duration-300 delay-200">
-            Are you sure you want to approve {selectedCount} images? This action cannot be undone.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex space-x-3 animate-in slide-in-from-bottom duration-300 delay-300">
-            <Button
-              onClick={() => {
-                // Handle bulk approval here
-                setShowConfirm(false)
-                onClear()
-              }}
-              className="bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 hover:shadow-md group"
-              disabled={bulkApprove.isPending}
-            >
-              <CheckCircle className="h-4 w-4 mr-2 transition-transform group-hover:rotate-12" />
-              Yes, Approve All
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowConfirm(false)}
-              className="transition-all duration-200 hover:scale-105 hover:shadow-md"
-            >
-              Cancel
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center gap-2 rounded-xl border border-warning/30 bg-warning/5 p-3">
+        <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
+        <p className="text-xs text-foreground">
+          Approve <strong>{selectedCount}</strong> images?
+        </p>
+        <Button
+          size="sm"
+          onClick={() => {
+            setShowConfirm(false)
+            onClear()
+          }}
+          className="h-7 text-[11px] bg-success text-success-foreground hover:bg-success/90"
+          disabled={bulkApprove.isPending}
+        >
+          <CheckCircle className="h-3 w-3 mr-1" />
+          Confirm
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setShowConfirm(false)}
+          className="h-7 text-[11px]"
+        >
+          Cancel
+        </Button>
+      </div>
     )
   }
 
   return (
-    <div className="flex items-center space-x-2 animate-in fade-in slide-in-from-right duration-300">
-      <span className="text-sm text-muted-foreground font-medium px-2 py-1 bg-primary/10 rounded-md animate-pulse">
+    <div className="flex items-center gap-2">
+      <span className="text-[11px] text-primary font-medium tabular-nums">
         {selectedCount} selected
       </span>
       <Button
         size="sm"
         onClick={handleBulkApprove}
-        className="bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 hover:shadow-md group"
+        className="h-7 text-[11px] gap-1 bg-success text-success-foreground hover:bg-success/90"
       >
-        <CheckCircle className="h-4 w-4 mr-1 transition-transform group-hover:rotate-12" />
+        <CheckCircle className="h-3 w-3" />
         Approve All
       </Button>
       <Button
         size="sm"
-        variant="outline"
+        variant="ghost"
         onClick={onClear}
-        className="transition-all duration-200 hover:scale-105 hover:shadow-md group"
+        className="h-7 text-[11px] gap-1 text-muted-foreground"
       >
-        <X className="h-4 w-4 mr-1 transition-transform group-hover:rotate-90" />
+        <X className="h-3 w-3" />
         Clear
       </Button>
     </div>

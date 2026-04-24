@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/lib/contexts/auth-context'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { ArrowLeft, Shield } from 'lucide-react'
+import { ArrowLeft, Lock, Loader2 } from 'lucide-react'
 
 interface PinFormProps {
   onSuccess: () => void
@@ -19,14 +19,12 @@ export function PinForm({ onSuccess, onBack }: PinFormProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
-    // Focus first input on mount
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus()
     }
   }, [])
 
   const handlePinChange = (index: number, value: string) => {
-    // Only allow digits
     if (!/^\d*$/.test(value)) return
 
     const newPin = pin.split('')
@@ -34,12 +32,10 @@ export function PinForm({ onSuccess, onBack }: PinFormProps) {
     const newPinString = newPin.join('').slice(0, 4)
     setPin(newPinString)
 
-    // Auto-focus next input
     if (value && index < 3) {
       inputRefs.current[index + 1]?.focus()
     }
 
-    // Auto-submit when PIN is complete
     if (newPinString.length === 4) {
       handleSubmit(newPinString)
     }
@@ -48,7 +44,6 @@ export function PinForm({ onSuccess, onBack }: PinFormProps) {
   }
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    // Handle backspace
     if (e.key === 'Backspace' && !pin[index] && index > 0) {
       inputRefs.current[index - 1]?.focus()
     }
@@ -63,7 +58,7 @@ export function PinForm({ onSuccess, onBack }: PinFormProps) {
 
     try {
       const result = await loginWithPin(pinToSubmit)
-      
+
       if (result.success) {
         onSuccess()
       } else {
@@ -83,7 +78,7 @@ export function PinForm({ onSuccess, onBack }: PinFormProps) {
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault()
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4)
-    
+
     if (pastedData.length === 4) {
       setPin(pastedData)
       handleSubmit(pastedData)
@@ -91,16 +86,15 @@ export function PinForm({ onSuccess, onBack }: PinFormProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" className="border-destructive/30 bg-destructive/5">
+          <AlertDescription className="text-sm">{error}</AlertDescription>
         </Alert>
       )}
 
-      {/* PIN Input */}
-      <div className="space-y-4">
-        <div className="flex justify-center space-x-3">
+      <div className="space-y-3">
+        <div className="flex justify-center gap-3">
           {[0, 1, 2, 3].map((index) => (
             <input
               key={index}
@@ -112,45 +106,41 @@ export function PinForm({ onSuccess, onBack }: PinFormProps) {
               onChange={(e) => handlePinChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={handlePaste}
-              className="w-12 h-12 text-center text-2xl font-bold border-2 border-input rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none disabled:opacity-50"
+              className="h-14 w-14 rounded-xl border-2 border-border bg-muted/50 text-center text-2xl font-bold text-foreground transition-all duration-200 focus:border-primary focus:bg-primary/5 focus:ring-2 focus:ring-primary/20 focus:outline-none disabled:opacity-40"
               disabled={isSubmitting}
             />
           ))}
         </div>
-        
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">
-            Enter your 4-digit PIN
-          </p>
-        </div>
+
+        <p className="text-center text-xs text-muted-foreground">
+          Enter your 4-digit PIN
+        </p>
       </div>
 
-      {/* Submit Button */}
       <Button
         onClick={() => handleSubmit()}
-        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+        className="w-full h-11 rounded-xl bg-primary font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25"
         disabled={pin.length !== 4 || isSubmitting || isLoading}
       >
         {isSubmitting ? (
-          <div className="flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
-            <span>Verifying PIN...</span>
-          </div>
+          <span className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Verifying...
+          </span>
         ) : (
-          <div className="flex items-center space-x-2">
-            <Shield className="h-4 w-4" />
-            <span>Verify PIN</span>
-          </div>
+          <span className="flex items-center gap-2">
+            <Lock className="h-4 w-4" />
+            Verify PIN
+          </span>
         )}
       </Button>
 
-      {/* Back Button (optional) */}
       {onBack && (
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           onClick={onBack}
-          className="w-full"
+          className="w-full text-muted-foreground hover:text-foreground"
           disabled={isSubmitting}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

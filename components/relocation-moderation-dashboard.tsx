@@ -67,7 +67,6 @@ const sourceLabels: Record<SubmissionSource, string> = {
 }
 
 const reviewTabs = ['submit', 'queue', 'published'] as const
-
 type ReviewTab = (typeof reviewTabs)[number]
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -98,13 +97,7 @@ export function RelocationModerationDashboard() {
     const pending = submissions.filter(item => item.status === 'pending').length
     const approved = submissions.filter(item => item.status === 'approved').length
     const rejected = submissions.filter(item => item.status === 'rejected').length
-
-    return {
-      pending,
-      approved,
-      rejected,
-      total: submissions.length,
-    }
+    return { pending, approved, rejected, total: submissions.length }
   }, [submissions])
 
   const pendingSubmissions = useMemo(
@@ -148,7 +141,6 @@ export function RelocationModerationDashboard() {
 
     try {
       await createSubmissionMutation.mutateAsync(payload)
-
       setForm(defaultForm)
       setActiveTab('queue')
       toast.success('Submission sent for admin approval.')
@@ -164,10 +156,8 @@ export function RelocationModerationDashboard() {
       return
     }
     setProcessingSubmissionId(submissionId)
-
     try {
       await approveSubmissionMutation.mutateAsync({ submissionId })
-
       toast.success('Item approved and ready for app visibility.')
     } catch (error) {
       console.error('Failed to approve relocation submission:', error)
@@ -187,21 +177,14 @@ export function RelocationModerationDashboard() {
       toast.error('Relocation schema is missing. Apply migrations before rejecting.')
       return
     }
-
     setProcessingSubmissionId(submissionId)
-
     try {
-      await rejectSubmissionMutation.mutateAsync({
-        submissionId,
-        rejectionReason: reason,
-      })
-
+      await rejectSubmissionMutation.mutateAsync({ submissionId, rejectionReason: reason })
       setRejectReasonById(prev => {
         const next = { ...prev }
         delete next[submissionId]
         return next
       })
-
       toast.success('Item rejected. Submitter can revise and resubmit.')
     } catch (error) {
       console.error('Failed to reject relocation submission:', error)
@@ -213,255 +196,117 @@ export function RelocationModerationDashboard() {
 
   if (hasUnexpectedError) {
     return (
-      <Card>
-        <CardContent className="py-12">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <AlertTriangle className="h-10 w-10 text-destructive" />
-            <p className="text-lg font-semibold">Unable to load relocation submissions</p>
-            <p className="text-sm text-muted-foreground">
-              {submissionsQuery.error instanceof Error ? submissionsQuery.error.message : 'Please retry shortly.'}
-            </p>
-            <Button type="button" variant="outline" onClick={() => submissionsQuery.refetch()}>
-              Retry
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="rounded-xl border border-border bg-card p-12 text-center">
+        <AlertTriangle className="h-10 w-10 text-destructive mx-auto mb-3" />
+        <p className="text-sm font-semibold">Unable to load relocation submissions</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {submissionsQuery.error instanceof Error ? submissionsQuery.error.message : 'Please retry shortly.'}
+        </p>
+        <Button type="button" variant="outline" size="sm" className="mt-4" onClick={() => submissionsQuery.refetch()}>
+          Retry
+        </Button>
+      </div>
     )
   }
 
   return (
     <div className="space-y-6">
       {schemaMissing && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="border-destructive/30 bg-destructive/5">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Schema setup required</AlertTitle>
-          <AlertDescription>
-            Relocation moderation tables are not yet in Supabase. Apply migrations
-            <code className="ml-1 rounded bg-muted px-1.5 py-0.5 text-xs">supabase/migrations/20260209090000_relocation_catalog_moderation.sql</code>
-            and
-            <code className="ml-1 rounded bg-muted px-1.5 py-0.5 text-xs">supabase/migrations/20260209100000_relocation_catalog_security.sql</code>
-            before using this module.
+          <AlertDescription className="text-xs">
+            Relocation moderation tables are not yet in Supabase. Apply migrations before using this module.
           </AlertDescription>
         </Alert>
       )}
 
       {!schemaMissing && submissionsQuery.isLoading ? (
-        <Card>
-          <CardContent className="py-12">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">Loading relocation submissions...</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border bg-card p-12 text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Loading relocation submissions...</p>
+        </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              icon={Clock}
-              title="Pending Review"
-              value={stats.pending}
-              hint="Awaiting decision"
-              className="border-l-yellow-500"
-              valueClassName="text-yellow-600"
-            />
-            <StatCard
-              icon={CheckCircle}
-              title="Published"
-              value={stats.approved}
-              hint="Visible in Android app"
-              className="border-l-green-500"
-              valueClassName="text-green-600"
-            />
-            <StatCard
-              icon={XCircle}
-              title="Rejected"
-              value={stats.rejected}
-              hint="Needs revision"
-              className="border-l-red-500"
-              valueClassName="text-red-600"
-            />
-            <StatCard
-              icon={ListChecks}
-              title="Total Submissions"
-              value={stats.total}
-              hint="All records"
-              className="border-l-primary"
-              valueClassName="text-primary"
-            />
+          {/* Stats */}
+          <div className="stagger-children grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <StatCard icon={Clock} label="Pending Review" value={stats.pending} color="text-warning" />
+            <StatCard icon={CheckCircle} label="Published" value={stats.approved} color="text-success" />
+            <StatCard icon={XCircle} label="Rejected" value={stats.rejected} color="text-destructive" />
+            <StatCard icon={ListChecks} label="Total" value={stats.total} color="text-foreground" />
           </div>
 
-          <section className="space-y-3 rounded-lg border border-border/70 bg-background/70 p-4">
+          {/* Tab bar */}
+          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
             <div>
-              <h3 className="text-base font-semibold tracking-tight">Relocation Catalog Moderation</h3>
-              <p className="text-sm text-muted-foreground">
-                Users submit movers, vehicles, zones, and pricing updates. Only approved items should be published to the app.
+              <h3 className="text-sm font-semibold">Relocation Catalog Moderation</h3>
+              <p className="text-xs text-muted-foreground">
+                Users submit movers, vehicles, zones, and pricing updates. Only approved items are published.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <TabButton
-                active={activeTab === 'submit'}
-                onClick={() => setActiveTab('submit')}
-                icon={UserPlus}
-                label="User Submission"
-              />
-              <TabButton
-                active={activeTab === 'queue'}
-                onClick={() => setActiveTab('queue')}
-                icon={FileWarning}
-                label={`Approval Queue (${stats.pending})`}
-              />
-              <TabButton
-                active={activeTab === 'published'}
-                onClick={() => setActiveTab('published')}
-                icon={FileCheck}
-                label={`Published (${stats.approved})`}
-              />
+              <TabBtn active={activeTab === 'submit'} onClick={() => setActiveTab('submit')} icon={UserPlus} label="User Submission" />
+              <TabBtn active={activeTab === 'queue'} onClick={() => setActiveTab('queue')} icon={FileWarning} label={`Queue (${stats.pending})`} />
+              <TabBtn active={activeTab === 'published'} onClick={() => setActiveTab('published')} icon={FileCheck} label={`Published (${stats.approved})`} />
             </div>
-          </section>
+          </div>
 
+          {/* Submit tab */}
           {activeTab === 'submit' && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Submit Data For Approval</CardTitle>
-                <CardDescription>
-                  Use this to capture user/partner submissions that require admin moderation before they appear in the app.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="submission-type">Submission Type</Label>
-                    <select
-                      id="submission-type"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      value={form.type}
-                      onChange={(event) =>
-                        setForm(prev => ({
-                          ...prev,
-                          type: event.target.value as RelocationSubmissionType,
-                        }))
-                      }
-                    >
-                      {Object.entries(relocationSubmissionTypeLabels).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="submission-source">Source</Label>
-                    <select
-                      id="submission-source"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      value={form.source}
-                      onChange={(event) =>
-                        setForm(prev => ({
-                          ...prev,
-                          source: event.target.value as SubmissionSource,
-                        }))
-                      }
-                    >
-                      {Object.entries(sourceLabels).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="submission-location">Location</Label>
-                    <Input
-                      id="submission-location"
-                      placeholder="City / Zone"
-                      value={form.location}
-                      onChange={(event) => setForm(prev => ({ ...prev, location: event.target.value }))}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="submission-title">Title</Label>
-                    <Input
-                      id="submission-title"
-                      placeholder="e.g. 5 Ton Truck - Nairobi"
-                      value={form.title}
-                      onChange={(event) => setForm(prev => ({ ...prev, title: event.target.value }))}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="payload-summary">Payload Summary</Label>
-                    <Input
-                      id="payload-summary"
-                      placeholder="Short summary used in approval queue"
-                      value={form.payloadSummary}
-                      onChange={(event) => setForm(prev => ({ ...prev, payloadSummary: event.target.value }))}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="submitted-by">Submitted By</Label>
-                    <Input
-                      id="submitted-by"
-                      placeholder="Contact person"
-                      value={form.submittedBy}
-                      onChange={(event) => setForm(prev => ({ ...prev, submittedBy: event.target.value }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="submitter-contact">Contact</Label>
-                    <Input
-                      id="submitter-contact"
-                      placeholder="Phone or email"
-                      value={form.submitterContact}
-                      onChange={(event) => setForm(prev => ({ ...prev, submitterContact: event.target.value }))}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="submission-notes">Notes</Label>
-                  <Textarea
-                    id="submission-notes"
-                    placeholder="Any supporting context"
-                    value={form.notes}
-                    onChange={(event) => setForm(prev => ({ ...prev, notes: event.target.value }))}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <Button
-                    onClick={handleCreateSubmission}
-                    className="gap-2"
-                    disabled={!canSubmit || createSubmissionMutation.isPending}
-                  >
-                    {createSubmissionMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                    {!createSubmissionMutation.isPending && <Send className="h-4 w-4" />}
-                    Submit For Approval
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold">Submit Data For Approval</h3>
+                <p className="text-xs text-muted-foreground">
+                  Capture user/partner submissions that require admin moderation.
+                </p>
+              </div>
+              <div className="accent-line" />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <FormSelect label="Submission Type" id="submission-type" value={form.type}
+                  onChange={(v) => setForm(prev => ({ ...prev, type: v as RelocationSubmissionType }))}
+                  options={Object.entries(relocationSubmissionTypeLabels).map(([value, label]) => ({ value, label }))} />
+                <FormSelect label="Source" id="submission-source" value={form.source}
+                  onChange={(v) => setForm(prev => ({ ...prev, source: v as SubmissionSource }))}
+                  options={Object.entries(sourceLabels).map(([value, label]) => ({ value, label }))} />
+                <FormField label="Location" id="submission-location" placeholder="City / Zone"
+                  value={form.location} onChange={(v) => setForm(prev => ({ ...prev, location: v }))} />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField label="Title" id="submission-title" placeholder="e.g. 5 Ton Truck - Nairobi"
+                  value={form.title} onChange={(v) => setForm(prev => ({ ...prev, title: v }))} />
+                <FormField label="Payload Summary" id="payload-summary" placeholder="Short summary for queue"
+                  value={form.payloadSummary} onChange={(v) => setForm(prev => ({ ...prev, payloadSummary: v }))} />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField label="Submitted By" id="submitted-by" placeholder="Contact person"
+                  value={form.submittedBy} onChange={(v) => setForm(prev => ({ ...prev, submittedBy: v }))} />
+                <FormField label="Contact" id="submitter-contact" placeholder="Phone or email"
+                  value={form.submitterContact} onChange={(v) => setForm(prev => ({ ...prev, submitterContact: v }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="submission-notes" className="text-xs">Notes</Label>
+                <Textarea id="submission-notes" placeholder="Any supporting context" value={form.notes}
+                  onChange={(event) => setForm(prev => ({ ...prev, notes: event.target.value }))} rows={3}
+                  className="text-sm" />
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={handleCreateSubmission} className="gap-1.5"
+                  disabled={!canSubmit || createSubmissionMutation.isPending}>
+                  {createSubmissionMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  Submit For Approval
+                </Button>
+              </div>
+            </div>
           )}
 
+          {/* Queue tab */}
           {activeTab === 'queue' && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {pendingSubmissions.length === 0 && (
-                <div className="rounded-lg border border-dashed py-12">
-                  <div className="text-center space-y-2">
-                    <CheckCircle className="mx-auto h-10 w-10 text-green-600" />
-                    <p className="font-medium">All submissions reviewed</p>
-                    <p className="text-sm text-muted-foreground">New user submissions will appear here.</p>
-                  </div>
+                <div className="rounded-xl border border-dashed border-border p-12 text-center">
+                  <CheckCircle className="mx-auto h-10 w-10 text-success mb-3" />
+                  <p className="text-sm font-medium">All submissions reviewed</p>
+                  <p className="text-xs text-muted-foreground mt-1">New user submissions will appear here.</p>
                 </div>
               )}
 
@@ -470,74 +315,55 @@ export function RelocationModerationDashboard() {
                 const mediaUrls = extractMediaUrlsFromPayload(item.payload)
 
                 return (
-                  <article key={item.id} className="space-y-4 rounded-2xl border border-l-4 border-l-yellow-500 bg-background/80 p-4 sm:p-5">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <article key={item.id} className="mod-card mod-card--pending space-y-3">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                       <div>
-                        <h4 className="text-base font-semibold">{item.title}</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <h4 className="text-sm font-semibold">{item.title}</h4>
+                        <p className="text-xs text-muted-foreground">
                           {relocationSubmissionTypeLabels[item.type]} submitted by {item.submittedBy}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="w-fit">Pending</Badge>
+                      <Badge variant="outline" className="w-fit border-warning/30 bg-warning/10 text-warning text-[11px]">Pending</Badge>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2 xl:grid-cols-5">
+                    <div className="grid grid-cols-1 gap-2 text-xs md:grid-cols-2 xl:grid-cols-5">
                       <InfoItem label="Contact" value={item.submitterContact} />
                       <InfoItem label="Source" value={sourceLabels[item.source]} />
                       <InfoItem label="Location" value={item.location} />
-                      <InfoItem
-                        label="Submitted"
-                        value={formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
-                      />
+                      <InfoItem label="Submitted" value={formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })} />
                       <InfoItem label="Reference" value={item.id} />
                     </div>
 
-                    <div className="rounded-md border bg-muted/30 p-3 text-sm">
-                      <p className="font-medium text-foreground">Payload</p>
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs">
+                      <p className="font-medium">Payload</p>
                       <p className="text-muted-foreground">{item.payloadSummary}</p>
                     </div>
 
-                    <SubmissionMediaPreview
-                      urls={mediaUrls}
-                      emptyLabel="No media attached to this relocation submission."
-                    />
+                    <SubmissionMediaPreview urls={mediaUrls} emptyLabel="No media attached to this relocation submission." />
 
                     {item.notes && (
-                      <div className="rounded-md border p-3 text-sm">
-                        <p className="font-medium text-foreground">Notes</p>
+                      <div className="rounded-lg border border-border p-3 text-xs">
+                        <p className="font-medium">Notes</p>
                         <p className="text-muted-foreground">{item.notes}</p>
                       </div>
                     )}
 
                     <div className="space-y-2">
-                      <Label htmlFor={`reject-${item.id}`}>Rejection reason (required to reject)</Label>
-                      <Textarea
-                        id={`reject-${item.id}`}
-                        placeholder="Explain why this needs changes"
+                      <Label htmlFor={`reject-${item.id}`} className="text-xs">Rejection reason (required to reject)</Label>
+                      <Textarea id={`reject-${item.id}`} placeholder="Explain why this needs changes"
                         value={rejectReasonById[item.id] ?? ''}
-                        onChange={(event) =>
-                          setRejectReasonById(prev => ({
-                            ...prev,
-                            [item.id]: event.target.value,
-                          }))
-                        }
-                        rows={2}
-                      />
+                        onChange={(event) => setRejectReasonById(prev => ({ ...prev, [item.id]: event.target.value }))}
+                        rows={2} className="text-sm" />
                     </div>
 
                     <div className="flex flex-wrap items-center justify-end gap-2">
-                      <Button variant="outline" className="gap-2" onClick={() => handleReject(item.id)} disabled={isProcessing}>
-                        {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
-                        {!isProcessing && <XCircle className="h-4 w-4" />}
+                      <Button variant="outline" size="sm" className="gap-1.5" onClick={() => handleReject(item.id)} disabled={isProcessing}>
+                        {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
                         Reject
                       </Button>
-                      <Button
-                        className="gap-2 bg-green-600 text-white hover:bg-green-700"
-                        onClick={() => handleApprove(item.id)}
-                        disabled={isProcessing}
-                      >
-                        {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
-                        {!isProcessing && <CheckCircle className="h-4 w-4" />}
+                      <Button size="sm" className="gap-1.5 bg-success text-success-foreground hover:bg-success/90"
+                        onClick={() => handleApprove(item.id)} disabled={isProcessing}>
+                        {isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />}
                         Approve & Publish
                       </Button>
                     </div>
@@ -547,10 +373,11 @@ export function RelocationModerationDashboard() {
             </div>
           )}
 
+          {/* Published tab */}
           {activeTab === 'published' && (
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {approvedSubmissions.length === 0 && (
-                <div className="lg:col-span-2 rounded-lg border border-dashed py-12 text-center text-sm text-muted-foreground">
+                <div className="lg:col-span-2 rounded-xl border border-dashed border-border p-12 text-center text-xs text-muted-foreground">
                   No published relocation entries yet.
                 </div>
               )}
@@ -558,21 +385,18 @@ export function RelocationModerationDashboard() {
               {approvedSubmissions.map(item => {
                 const mediaUrls = extractMediaUrlsFromPayload(item.payload)
                 return (
-                  <article key={item.id} className="space-y-2 rounded-2xl border border-l-4 border-l-green-500 bg-background/80 p-4 sm:p-5 text-sm">
+                  <article key={item.id} className="mod-card mod-card--published space-y-2 text-xs">
                     <div className="flex items-center justify-between gap-2">
-                      <h4 className="text-base font-semibold">{item.title}</h4>
-                      <Badge className="bg-green-600 text-white hover:bg-green-700">Live</Badge>
+                      <h4 className="text-sm font-semibold">{item.title}</h4>
+                      <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-[10px]">Live</Badge>
                     </div>
                     <p className="text-muted-foreground">
-                      {relocationSubmissionTypeLabels[item.type]} · {item.location} · {sourceLabels[item.source]}
+                      {relocationSubmissionTypeLabels[item.type]} \u00b7 {item.location} \u00b7 {sourceLabels[item.source]}
                     </p>
                     <p className="text-muted-foreground">{item.payloadSummary}</p>
-                    <SubmissionMediaPreview
-                      urls={mediaUrls}
-                      emptyLabel="No media attached to this relocation submission."
-                    />
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Truck className="h-3.5 w-3.5" />
+                    <SubmissionMediaPreview urls={mediaUrls} emptyLabel="No media attached." />
+                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <Truck className="h-3 w-3" />
                       <span>
                         Approved {item.reviewedAt ? formatDistanceToNow(new Date(item.reviewedAt), { addSuffix: true }) : 'recently'}
                         {item.reviewedBy ? ` by ${item.reviewedBy}` : ''}
@@ -589,64 +413,53 @@ export function RelocationModerationDashboard() {
   )
 }
 
-function TabButton({
-  active,
-  onClick,
-  icon: Icon,
-  label,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-}) {
+function TabBtn({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: React.ComponentType<{ className?: string }>; label: string }) {
   return (
-    <Button
-      type="button"
-      variant={active ? 'default' : 'outline'}
-      onClick={onClick}
-      className={cn('gap-2', !active && 'bg-background')}
-    >
-      <Icon className="h-4 w-4" />
+    <button type="button" onClick={onClick} className={cn('tab-btn', active ? 'tab-btn--active' : 'tab-btn--inactive')}>
+      <Icon className="h-3.5 w-3.5" />
       {label}
-    </Button>
+    </button>
   )
 }
 
-function StatCard({
-  icon: Icon,
-  title,
-  value,
-  hint,
-  className,
-  valueClassName,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  title: string
-  value: number
-  hint: string
-  className?: string
-  valueClassName?: string
-}) {
+function StatCard({ icon: Icon, label, value, color }: { icon: React.ComponentType<{ className?: string }>; label: string; value: number; color: string }) {
   return (
-    <Card className={cn('border-l-4', className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm text-muted-foreground">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className={cn('text-2xl font-bold', valueClassName)}>{value}</div>
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
+    <div className="stat-card rounded-xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <Icon className={cn('h-4 w-4', color)} />
+      </div>
+      <p className={cn('mt-1 text-2xl font-bold tracking-tight', color)}>{value}</p>
+    </div>
   )
 }
 
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border bg-background p-2">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium text-foreground">{value}</p>
+    <div className="rounded-lg border border-border bg-muted/30 p-2">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium truncate">{value}</p>
+    </div>
+  )
+}
+
+function FormField({ label, id, placeholder, value, onChange }: { label: string; id: string; placeholder: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <Input id={id} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} className="h-9 text-sm" />
+    </div>
+  )
+}
+
+function FormSelect({ label, id, value, onChange, options }: { label: string; id: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <select id={id} value={value} onChange={(e) => onChange(e.target.value)}
+        className="flex h-9 w-full rounded-lg border border-border bg-muted px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+        {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+      </select>
     </div>
   )
 }
@@ -654,30 +467,16 @@ function InfoItem({ label, value }: { label: string; value: string }) {
 function extractMediaUrlsFromPayload(payload: unknown): string[] {
   const mediaHints = ['image', 'photo', 'logo', 'banner', 'thumbnail', 'avatar', 'gallery', 'media']
   const results = new Set<string>()
-
   const visit = (value: unknown, keyHint: string) => {
-    if (Array.isArray(value)) {
-      value.forEach(item => visit(item, keyHint))
-      return
-    }
-
-    if (value && typeof value === 'object') {
-      Object.entries(value).forEach(([key, nested]) => visit(nested, key.toLowerCase()))
-      return
-    }
-
+    if (Array.isArray(value)) { value.forEach(item => visit(item, keyHint)); return }
+    if (value && typeof value === 'object') { Object.entries(value).forEach(([key, nested]) => visit(nested, key.toLowerCase())); return }
     if (typeof value !== 'string') return
-
     const url = value.trim()
     if (!/^https?:\/\//i.test(url)) return
-
     const hint = keyHint.toLowerCase()
     const hinted = mediaHints.some(token => hint.includes(token))
-    if (hinted || isImageLikeUrl(url)) {
-      results.add(url)
-    }
+    if (hinted || isImageLikeUrl(url)) results.add(url)
   }
-
   visit(payload, '')
   return Array.from(results)
 }
@@ -686,12 +485,8 @@ function isImageLikeUrl(url: string): boolean {
   const lower = url.toLowerCase()
   return (
     lower.includes('/storage/v1/object/public/') ||
-    lower.endsWith('.jpg') ||
-    lower.endsWith('.jpeg') ||
-    lower.endsWith('.png') ||
-    lower.endsWith('.webp') ||
-    lower.endsWith('.gif') ||
-    lower.endsWith('.heic') ||
-    lower.endsWith('.heif')
+    lower.endsWith('.jpg') || lower.endsWith('.jpeg') ||
+    lower.endsWith('.png') || lower.endsWith('.webp') ||
+    lower.endsWith('.gif') || lower.endsWith('.heic') || lower.endsWith('.heif')
   )
 }

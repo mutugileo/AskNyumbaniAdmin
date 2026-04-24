@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react'
 import { ChevronDown, ExternalLink, Image as ImageIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 interface SubmissionMediaPreviewProps {
@@ -32,54 +31,52 @@ export function SubmissionMediaPreview({
 
   if (mediaUrls.length === 0) {
     return (
-      <div className={cn('rounded-md border border-dashed p-3 text-xs text-muted-foreground', className)}>
+      <div className={cn('rounded-lg border border-dashed border-border p-2.5 text-[11px] text-muted-foreground', className)}>
         {emptyLabel}
       </div>
     )
   }
 
   return (
-    <div className={cn('space-y-2 rounded-md border p-3', className)}>
+    <div className={cn('space-y-2 rounded-lg border border-border p-2.5', className)}>
       <div className="flex items-center justify-between gap-2">
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 px-2 text-xs"
+          className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => setExpanded(prev => !prev)}
         >
-          <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', expanded && 'rotate-180')} />
-          <ImageIcon className="h-3.5 w-3.5" />
+          <ChevronDown className={cn('h-3 w-3 transition-transform', expanded && 'rotate-180')} />
+          <ImageIcon className="h-3 w-3" />
           Images ({mediaUrls.length})
-        </Button>
+        </button>
         <a
           href={mediaUrls[0]}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+          className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
         >
           Open first
-          <ExternalLink className="h-3 w-3" />
+          <ExternalLink className="h-2.5 w-2.5" />
         </a>
       </div>
 
       {expanded && (
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-1.5 md:grid-cols-3 xl:grid-cols-4">
           {mediaUrls.map((url, index) => (
             <a
               key={`${url}-${index}`}
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="group relative overflow-hidden rounded-md border bg-muted"
+              className="group relative overflow-hidden rounded-lg border border-border bg-muted"
             >
               <img
                 src={url}
                 alt={`Submission image ${index + 1}`}
-                className="h-24 w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+                className="h-20 w-full object-cover transition-transform duration-200 group-hover:scale-105"
                 loading="lazy"
               />
-              <span className="absolute bottom-1 right-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] text-white">
+              <span className="absolute bottom-0.5 right-0.5 rounded bg-black/70 px-1 py-0.5 text-[9px] text-white tabular-nums">
                 {index + 1}
               </span>
             </a>
